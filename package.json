@@ -1,0 +1,17 @@
+{
+  "name": "mercari_relisting",
+  "version": "1.0.0",
+  "description": "relisting mercari listed item",
+  "main": "index.js",
+  "repository": "https://github.com/yoshikis329/mercari_relisting.git",
+  "author": "yoshikis <yoshikis329@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "selenium-webdriver": "^4.38.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.9.2",
+    "@types/selenium-webdriver": "^4.35.3",
+    "typescript": "^5.9.3"
+  }
+}
