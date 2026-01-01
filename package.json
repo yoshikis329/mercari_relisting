@@ -1,6 +1,7 @@
 {
   "name": "mercari_relisting",
   "version": "1.0.0",
+  "type": "module",
   "description": "relisting mercari listed item",
   "main": "index.js",
   "repository": "https://github.com/yoshikis329/mercari_relisting.git",
