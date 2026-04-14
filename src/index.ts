@@ -6,7 +6,9 @@ import process from "process";
 // 画像をダウンロードする関数
 const downloadImage = (url: string, filename: string): Promise<void> => {
     return new Promise((resolve, reject) => {
-        https.get(url, (response) => {
+        // 証明書検証エラー対策
+        const options = { rejectUnauthorized: false };
+        https.get(url, options, (response) => {
             if (response.statusCode !== 200) {
                 reject(new Error(`Failed to download image: ${response.statusCode}`));
                 return;
