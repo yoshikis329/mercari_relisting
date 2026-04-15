@@ -49,11 +49,24 @@ const main = async (productId: string) => {
     fs.mkdirSync('product_images');
 
     const driver = await new webdriver.Builder().withCapabilities(capabilities).build();
-    await driver.get(`https://jp.mercari.com/item/${productId}`);
     
-    await driver.sleep(2000); // ページの読み込みを待つ
+    try {
+        await driver.get(`https://jp.mercari.com/item/${productId}`);
+        
+        // ページが正しく読み込まれているか確認（最大15秒待機）
+        await driver.wait(webdriver.until.elementLocated(webdriver.By.id('item-info')), 15000);
+        console.log('ページの読み込みが完了しました');
+        
+        // ページのHTMLをデバッグ用に即座に保存
+        const debugPageSource = await driver.getPageSource();
+        fs.writeFileSync('page_source.html', debugPageSource, 'utf-8');
+        
+        // 404や削除済みページでないか確認
+        if (debugPageSource.includes('404') || debugPageSource.includes('見つかりません')) {
+            throw new Error(`商品が見つかりません。商品ID: ${productId}`);
+        }
 
-    const itemInfo = await driver.findElement(webdriver.By.id('item-info'));
+        const itemInfo = await driver.findElement(webdriver.By.id('item-info'));
     // 商品名を取得（通常はh1タグまたはタイトル要素）
     const productName = await itemInfo.findElement(webdriver.By.css('h1')).getText();
     
@@ -89,17 +102,23 @@ const main = async (productId: string) => {
         console.error('ハッシュタグの取得に失敗しました:', error);
     }
     
-    // デバッグ用: ページのHTMLを出力
-    const pageSource = await driver.getPageSource();
-    fs.writeFileSync('page_source.html', pageSource, 'utf-8');
-    console.log('ページのHTMLをpage_source.htmlに保存しました');
-
-    // テキストファイルに出力
-    const textContent = `商品名: ${productName}\n\n価格: ${price}\n\n商品説明:\n${productDescription}\n\n${hashtags}`;
-    fs.writeFileSync(`product_images/${productId}_info.txt`, textContent, 'utf-8');
-    console.log('商品情報をテキストファイルに保存しました。');
-
-    await driver.quit();
+        // テキストファイルに出力
+        const textContent = `商品名: ${productName}\n\n価格: ${price}\n\n商品説明:\n${productDescription}\n\n${hashtags}`;
+        fs.writeFileSync(`product_images/${productId}_info.txt`, textContent, 'utf-8');
+        console.log('商品情報をテキストファイルに保存しました。');
+    } catch (error: any) {
+        console.error(`エラーが発生しました:`, error.message);
+        // ページのHTML をデバッグ用に保存
+        try {
+            const errorPageSource = await driver.getPageSource();
+            fs.writeFileSync('page_source_error.html', errorPageSource, 'utf-8');
+            console.log('エラー時のページHTMLをpage_source_error.htmlに保存しました');
+        } catch (e) {
+            // ページソース取得失敗時は無視
+        }
+    } finally {
+        await driver.quit();
+    }
     
     // 指定された画像をダウンロード
 
