@@ -121,9 +121,9 @@ const main = async (productId: string) => {
     }
     
     // 指定された画像をダウンロード
-
+    const numericProductId = productId.replace(/^m/, '');
     for (let i = 1; i <= 20; i++) {
-        const imageUrl = `https://static.mercdn.net/item/detail/orig/photos/${productId}_${i}.jpg`;
+        const imageUrl = `https://static.mercdn.net/item/detail/orig/photos/${productId}_${i}.jpg?${numericProductId}`;
         const fileName = `product_images/downloaded_image_${i}.jpg`;
 
         try {
