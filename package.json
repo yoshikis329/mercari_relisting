@@ -8,11 +8,11 @@
   "author": "yoshikis <yoshikis329@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "selenium-webdriver": "^4.38.0"
+    "selenium-webdriver": "^4.44.0"
   },
   "devDependencies": {
-    "@types/node": "^24.9.2",
-    "@types/selenium-webdriver": "^4.35.3",
-    "typescript": "^5.9.3"
+    "@types/node": "^25.9.1",
+    "@types/selenium-webdriver": "^4.35.5",
+    "typescript": "^6.0.3"
   }
 }
