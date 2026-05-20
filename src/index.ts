@@ -57,50 +57,42 @@ const main = async (productId: string) => {
         await driver.wait(webdriver.until.elementLocated(webdriver.By.id('item-info')), 15000);
         console.log('ページの読み込みが完了しました');
         
-        // ページのHTMLをデバッグ用に即座に保存
-        const debugPageSource = await driver.getPageSource();
-        fs.writeFileSync('page_source.html', debugPageSource, 'utf-8');
-        
-        // 404や削除済みページでないか確認
-        if (debugPageSource.includes('404') || debugPageSource.includes('見つかりません')) {
-            throw new Error(`商品が見つかりません。商品ID: ${productId}`);
-        }
-
         const itemInfo = await driver.findElement(webdriver.By.id('item-info'));
-    // 商品名を取得（通常はh1タグまたはタイトル要素）
-    const productName = await itemInfo.findElement(webdriver.By.css('h1')).getText();
-    
-    // 商品説明（表示用テキスト）
-    const productDescription = await driver.findElement(
-        webdriver.By.css('[data-testid="description"]')
-    ).getText();
-    
-    // 商品説明の生HTMLを取得（ハッシュタグが含まれている可能性がある）
-    const descriptionElement = await driver.findElement(
-        webdriver.By.css('[data-testid="description"]')
-    );
-    const descriptionHTML = await descriptionElement.getAttribute('innerHTML');
-    
-    const price = await driver.findElement(
-        webdriver.By.css('[data-testid="price"]')
-    ).getText();
 
-    // ハッシュタグを抽出
-    let hashtags = '';
-    try {
-        // HTMLから#で始まる単語を抽出
-        const hashtagMatches = descriptionHTML.match(/#[^\s<>"]+/g);
+        // 商品名を取得（通常はh1タグまたはタイトル要素）
+        const productName = await itemInfo.findElement(webdriver.By.css('h1')).getText();
+    
+        // 商品説明（表示用テキスト）
+        const productDescription = await driver.findElement(
+            webdriver.By.css('[data-testid="description"]')
+        ).getText();
+    
+        // 商品説明の生HTMLを取得（ハッシュタグが含まれている可能性がある）
+        const descriptionElement = await driver.findElement(
+            webdriver.By.css('[data-testid="description"]')
+        );
+        const descriptionHTML = await descriptionElement.getAttribute('innerHTML');
+    
+        const price = await driver.findElement(
+            webdriver.By.css('[data-testid="price"]')
+        ).getText();
+
+        // ハッシュタグを抽出
+        let hashtags = '';
+        try {
+            // HTMLから#で始まる単語を抽出
+            const hashtagMatches = descriptionHTML.match(/#[^\s<>"]+/g);
         
-        if (hashtagMatches) {
-            // 重複を削除
-            hashtags = [...new Set(hashtagMatches)].join('\n');
-            console.log('抽出したハッシュタグ:', hashtags);
-        } else {
-            console.log('ハッシュタグが見つかりませんでした');
+            if (hashtagMatches) {
+                // 重複を削除
+                hashtags = [...new Set(hashtagMatches)].join('\n');
+                console.log('抽出したハッシュタグ:', hashtags);
+           } else {
+                console.log('ハッシュタグが見つかりませんでした');
+            }
+        } catch (error) {
+            console.error('ハッシュタグの取得に失敗しました:', error);
         }
-    } catch (error) {
-        console.error('ハッシュタグの取得に失敗しました:', error);
-    }
     
         // テキストファイルに出力
         const textContent = `商品名: ${productName}\n\n価格: ${price}\n\n商品説明:\n${productDescription}\n\n${hashtags}`;
